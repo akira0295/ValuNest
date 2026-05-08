@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile — VaLuNest</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <style>
+    /* ── Avatar ───────────────────────────────────────────── */
+    .avatar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border, rgba(67,160,71,0.15));
+    }
+    .avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-500, #43a047), var(--green-700, #2e7d32));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display, 'Fraunces', serif);
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(46,125,50,0.3);
+      letter-spacing: -1px;
+    }
+    .avatar-info {}
+    .avatar-name {
+      font-family: var(--font-display, 'Fraunces', serif);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--green-800, #1b5e20);
+      letter-spacing: -0.3px;
+    }
+    body.dark .avatar-name { color: var(--green-300, #a5d6a7); }
+    .avatar-email {
+      font-size: 13px;
+      color: var(--text-3, #7a9a7a);
+      margin-top: 3px;
+    }
+
+    /* ── Section divider ──────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--green-600, #2e7d32);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    body.dark .section-label { color: var(--green-400, #66bb6a); }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border, rgba(67,160,71,0.15));
+    }
+
+    /* ── Password strength bar ────────────────────────────── */
+    .strength-bar-wrap {
+      margin-top: 8px;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(67,160,71,0.12);
+      overflow: hidden;
+    }
+    .strength-bar {
+      height: 100%;
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+    .strength-hint {
+      font-size: 11px;
+      margin-top: 5px;
+      color: var(--text-3, #7a9a7a);
+      min-height: 16px;
+      transition: color 0.2s;
+    }
+
+    /* ── Danger zone ──────────────────────────────────────── */
+    .danger-section {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(192,57,43,0.18);
+    }
+    .danger-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #c0392b;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .danger-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(192,57,43,0.18);
+    }
+    .danger-box {
+      border: 1px solid rgba(192,57,43,0.2);
+      border-radius: var(--radius-md, 18px);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(192,57,43,0.03);
+    }
+    body.dark .danger-box { background: rgba(192,57,43,0.06); }
+    .danger-text { font-size: 13px; color: var(--text-2, #3a5c3a); }
+    body.dark .danger-text { color: var(--text-2, #9dc89d); }
+    .danger-text strong { color: #c0392b; }
+    .btn-danger {
+      display: inline-block;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #c0392b;
+      border: 1.5px solid rgba(192,57,43,0.4);
+      border-radius: 50px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-family: var(--font-body, 'DM Sans', sans-serif);
+      background: none;
+      cursor: pointer;
+    }
+    .btn-danger:hover {
+      background: #c0392b;
+      color: #fff;
+      border-color: #c0392b;
+    }
+
+    /* ── Toggle password visibility ───────────────────────── */
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap input {
+      padding-right: 44px;
+    }
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-3, #7a9a7a);
+      font-size: 16px;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--green-500, #43a047); }
+
+    /* ── Staggered entrance ───────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .container { animation: fadeUp 0.4s ease both; }
+    .avatar-wrap  { animation: fadeUp 0.4s 0.05s ease both; }
+    .section-label{ animation: fadeUp 0.4s 0.10s ease both; }
+  </style>
+</head>
+<body id="body">
+
+<!-- ── Topbar ──────────────────────────────────────────────── -->
+<nav class="topbar">
+  <a class="logo" href="{{ url_for('select_city') }}">VaLuNest</a>
+  <div class="topbar-right">
+    <span class="topbar-user">{{ session.get('user_name', '') }}</span>
+    <button class="dark-toggle" onclick="toggleDark()" id="dark-btn">🌙 Dark</button>
+    <a class="logout-btn" href="{{ url_for('logout') }}">Log out</a>
+  </div>
+</nav>
+
+<!-- ── Main ────────────────────────────────────────────────── -->
+<main>
+  <div class="container narrow">
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="{{ url_for('select_city') }}" class="link">Home</a>
+      &nbsp;/&nbsp;<span>My Profile</span>
+    </div>
+
+    <!-- Avatar block -->
+    <div class="avatar-wrap">
+      <div class="avatar" id="avatar-initials">
+        {{ user['name'][:2].upper() }}
+      </div>
+      <div class="avatar-info">
+        <div class="avatar-name" id="display-name">{{ user['name'] }}</div>
+        <div class="avatar-email">{{ user['email'] }}</div>
+      </div>
+    </div>
+
+    <!-- ── Section 1: Update Name ─────────────────────────── -->
+    <div class="section-label">Account info</div>
+
+    <form method="POST" action="{{ url_for('profile') }}" autocomplete="off">
+      <input type="hidden" name="action" value="update_name"/>
+
+      <div class="form-group">
+        <label for="name">Display name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="{{ user['name'] }}"
+          maxlength="80"
+          required
+          oninput="previewName(this.value)"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" value="{{ user['email'] }}" disabled
+               style="opacity:0.55;cursor:not-allowed;"/>
+        <div style="font-size:11px;color:var(--text-3);margin-top:5px;">
+          Email cannot be changed after registration.
+        </div>
+      </div>
+
+      <button type="submit" class="btn" style="margin-top:4px;">
+        Save name
+      </button>
+    </form>
+
+    <!-- ── Section 2: Change Password ────────────────────── -->
+    <div class="section-label" style="margin-top:32px;">Change password</div>
+
+    <form method="POST" action="{{ url_for('profile') }}" autocomplete="off">
+      <input type="hidden" name="action" value="change_password"/>
+
+      <div class="form-group">
+        <label for="current_password">Current password</label>
+        <div class="input-wrap">
+          <input type="password" id="current_password"
+                 name="current_password" required
+                 placeholder="Enter current password"/>
+          <button type="button" class="toggle-pw"
+                  onclick="togglePw('current_password', this)">👁</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="new_password">New password</label>
+        <div class="input-wrap">
+          <input type="password" id="new_password"
+                 name="new_password" required minlength="8"
+                 placeholder="At least 8 characters"
+                 oninput="checkStrength(this.value)"/>
+          <button type="button" class="toggle-pw"
+                  onclick="togglePw('new_password', this)">👁</button>
+        </div>
+        <div class="strength-bar-wrap">
+          <div class="strength-bar" id="strength-bar"></div>
+        </div>
+        <div class="strength-hint" id="strength-hint"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Confirm new password</label>
+        <div class="input-wrap">
+          <input type="password" id="confirm_password"
+                 name="confirm_password" required minlength="8"
+                 placeholder="Repeat new password"
+                 oninput="checkMatch()"/>
+          <button type="button" class="toggle-pw"
+                  onclick="togglePw('confirm_password', this)">👁</button>
+        </div>
+        <div class="strength-hint" id="match-hint"></div>
+      </div>
+
+      <button type="submit" class="btn btn-secondary"
+              style="margin-top:4px;">
+        Update password
+      </button>
+    </form>
+
+    <!-- ── Danger zone ────────────────────────────────────── -->
+    <div class="danger-section">
+      <div class="danger-label">Danger zone</div>
+      <div class="danger-box">
+        <div class="danger-text">
+          <strong>Delete account</strong><br/>
+          Permanently removes your account and all data. This cannot be undone.
+        </div>
+        <button class="btn-danger"
+                onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</main>
+
+<script>
+  /* ── Dark mode ────────────────────────────────────────── */
+  const body = document.getElementById('body');
+  const btn  = document.getElementById('dark-btn');
+  if (localStorage.getItem('dark') === '1') {
+    body.classList.add('dark');
+    btn.textContent = '☀ Light';
+  }
+  function toggleDark() {
+    const on = body.classList.toggle('dark');
+    btn.textContent = on ? '☀ Light' : '🌙 Dark';
+    localStorage.setItem('dark', on ? '1' : '0');
+  }
+
+  /* ── Live name preview ────────────────────────────────── */
+  function previewName(val) {
+    const v = val.trim();
+    if (v) {
+      document.getElementById('display-name').textContent = v;
+      document.getElementById('avatar-initials').textContent =
+        v.slice(0, 2).toUpperCase();
+    }
+  }
+
+  /* ── Toggle password visibility ──────────────────────── */
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+  }
+
+  /* ── Password strength meter ──────────────────────────── */
+  function checkStrength(pw) {
+    const bar  = document.getElementById('strength-bar');
+    const hint = document.getElementById('strength-hint');
+    let score  = 0;
+    if (pw.length >= 8)  score++;
+    if (pw.length >= 12) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+    const levels = [
+      { w: '0%',   bg: 'transparent', msg: '' },
+      { w: '25%',  bg: '#e74c3c',     msg: 'Weak — too short' },
+      { w: '50%',  bg: '#e67e22',     msg: 'Fair — add numbers or symbols' },
+      { w: '75%',  bg: '#f1c40f',     msg: 'Good — add uppercase or symbols' },
+      { w: '90%',  bg: '#2ecc71',     msg: 'Strong' },
+      { w: '100%', bg: '#27ae60',     msg: 'Very strong ✓' },
+    ];
+    const lvl = levels[Math.min(score, 5)];
+    bar.style.width      = lvl.w;
+    bar.style.background = lvl.bg;
+    hint.textContent     = lvl.msg;
+    hint.style.color     = lvl.bg;
+    checkMatch();
+  }
+
+  /* ── Password match checker ───────────────────────────── */
+  function checkMatch() {
+    const pw1  = document.getElementById('new_password').value;
+    const pw2  = document.getElementById('confirm_password').value;
+    const hint = document.getElementById('match-hint');
+    if (!pw2) { hint.textContent = ''; return; }
+    if (pw1 === pw2) {
+      hint.textContent = 'Passwords match ✓';
+      hint.style.color = '#27ae60';
+    } else {
+      hint.textContent = 'Passwords do not match';
+      hint.style.color = '#e74c3c';
+    }
+  }
+
+  /* ── Delete account confirmation ──────────────────────── */
+  function confirmDelete() {
+    const confirmed = confirm(
+      'Are you sure you want to delete your account?\n\n' +
+      'This action is permanent and cannot be undone.'
+    );
+    if (confirmed) {
+      window.location.href = "{{ url_for('delete_account') }}";
+    }
+  }
+</script>
+
+</body>
+</html>

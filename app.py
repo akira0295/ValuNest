@@ -43,9 +43,7 @@ def login_required(f):
 
 @app.route('/')
 def index():
-    if 'user_id' in session:
-        return redirect(url_for('select_city'))
-    return redirect(url_for('login'))
+    return render_template("home.html")
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -261,6 +259,67 @@ def payment_success():
         method=session.get('payment_method',''),
         city=session.get('city',''),
         location=session.get('location',''))
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    user_id = session['user_id']
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT * FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        if action == 'update_name':
+            new_name = request.form.get('name', '').strip()
+            if not new_name:
+                flash("Name cannot be empty.", "error")
+            elif len(new_name) > 80:
+                flash("Name must be 80 characters or fewer.", "error")
+            else:
+                with get_db() as conn:
+                    conn.execute("UPDATE users SET name = ? WHERE id = ?", (new_name, user_id))
+                    conn.commit()
+                session['user_name'] = new_name
+                flash("Name updated successfully.", "success")
+                return redirect(url_for('profile'))
+
+        elif action == 'change_password':
+            current_pw = request.form.get('current_password', '')
+            new_pw     = request.form.get('new_password', '')
+            confirm_pw = request.form.get('confirm_password', '')
+
+            if not check_password_hash(user['password'], current_pw):
+                flash("Current password is incorrect.", "error")
+            elif len(new_pw) < 8:
+                flash("New password must be at least 8 characters.", "error")
+            elif new_pw != confirm_pw:
+                flash("New passwords do not match.", "error")
+            elif current_pw == new_pw:
+                flash("New password must differ from the current one.", "error")
+            else:
+                hashed = generate_password_hash(new_pw)
+                with get_db() as conn:
+                    conn.execute("UPDATE users SET password = ? WHERE id = ?", (hashed, user_id))
+                    conn.commit()
+                flash("Password changed successfully.", "success")
+                return redirect(url_for('profile'))
+
+    return render_template("profile.html", user=user)
+
+
+@app.route('/delete-account')
+@login_required
+def delete_account():
+    user_id = session['user_id']
+    with get_db() as conn:
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+    session.clear()
+    flash("Your account has been permanently deleted.", "success")
+    return redirect(url_for('register'))
 
 if __name__ == "__main__":
     app.run(debug=True,host='0.0.0.0', port=5002)

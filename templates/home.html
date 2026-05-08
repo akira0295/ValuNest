@@ -1,0 +1,706 @@
+{% extends "base.html" %}
+{% block title %}VaLuNest — Know the real value of any property{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Import fonts matching style.css ── */
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  /* ── Hero ── */
+  .home-hero {
+    text-align: center;
+    padding: 80px 24px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(67,160,71,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease both;
+  }
+  body.dark .hero-badge {
+    background: rgba(67,160,71,0.12);
+    border-color: rgba(102,187,106,0.3);
+    color: #81c784;
+  }
+  .hero-badge::before { content: '✦'; font-size: 10px; }
+
+  .home-hero h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1.1;
+    color: #0d2b0d;
+    margin-bottom: 20px;
+    animation: fadeUp 0.5s 0.08s ease both;
+  }
+  body.dark .home-hero h1 { color: #dff0df; }
+  .home-hero h1 .accent {
+    color: #2e7d32;
+    position: relative;
+  }
+  body.dark .home-hero h1 .accent { color: #66bb6a; }
+  .home-hero h1 .accent::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #43a047, #b5ff4d);
+    border-radius: 2px;
+  }
+
+  .home-hero p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    color: #5a7a5a;
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 36px;
+    font-weight: 400;
+    animation: fadeUp 0.5s 0.14s ease both;
+  }
+  body.dark .home-hero p { color: #9dc89d; }
+
+  .hero-cta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+  .btn-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+    cursor: pointer;
+    border: none;
+  }
+  .btn-hero-primary {
+    background: linear-gradient(135deg, #43a047, #2e7d32);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(46,125,50,0.3);
+  }
+  .btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(46,125,50,0.4);
+  }
+  .btn-hero-secondary {
+    background: transparent;
+    color: #2e7d32;
+    border: 2px solid rgba(67,160,71,0.4);
+  }
+  .btn-hero-secondary:hover {
+    background: #e8f5e9;
+    border-color: #43a047;
+    transform: translateY(-2px);
+  }
+  body.dark .btn-hero-secondary { color: #66bb6a; border-color: rgba(102,187,106,0.3); }
+  body.dark .btn-hero-secondary:hover { background: rgba(67,160,71,0.1); }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border-top: 1px solid rgba(67,160,71,0.12);
+    border-bottom: 1px solid rgba(67,160,71,0.12);
+    animation: fadeUp 0.5s 0.26s ease both;
+  }
+  .stat-item {
+    flex: 1;
+    max-width: 180px;
+    text-align: center;
+    padding: 22px 12px;
+    border-right: 1px solid rgba(67,160,71,0.12);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-val {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #2e7d32;
+    letter-spacing: -1px;
+    display: block;
+  }
+  body.dark .stat-val { color: #66bb6a; }
+  .stat-lbl {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #7a9a7a;
+    margin-top: 3px;
+    display: block;
+    font-weight: 500;
+  }
+
+  /* ── Section wrapper ── */
+  .home-section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 32px;
+  }
+  .home-section + .home-section {
+    border-top: 1px solid rgba(67,160,71,0.1);
+  }
+  .section-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #43a047;
+    margin-bottom: 10px;
+  }
+  body.dark .section-eyebrow { color: #66bb6a; }
+  .section-heading {
+    font-family: 'Fraunces', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #0d2b0d;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+  body.dark .section-heading { color: #dff0df; }
+  .section-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: #7a9a7a;
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  /* ── How it works steps ── */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .step-card {
+    background: #fff;
+    border: 1px solid rgba(67,160,71,0.15);
+    border-radius: 20px;
+    padding: 24px 18px;
+    position: relative;
+    transition: all 0.22s;
+  }
+  body.dark .step-card {
+    background: rgba(10,16,10,0.8);
+    border-color: rgba(102,187,106,0.12);
+  }
+  .step-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(46,125,50,0.12);
+    border-color: rgba(67,160,71,0.3);
+  }
+  .step-number {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #43a047, #2e7d32);
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .step-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b5e20;
+    margin-bottom: 6px;
+  }
+  body.dark .step-title { color: #a5d6a7; }
+  .step-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #7a9a7a;
+    line-height: 1.55;
+  }
+  .step-connector {
+    position: absolute;
+    top: 38px; right: -12px;
+    font-size: 16px;
+    color: #a5d6a7;
+    z-index: 1;
+  }
+
+  /* ── Feature cards ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .feature-card {
+    background: #fff;
+    border: 1px solid rgba(67,160,71,0.15);
+    border-radius: 20px;
+    padding: 28px 24px;
+    transition: all 0.22s;
+    position: relative;
+    overflow: hidden;
+  }
+  body.dark .feature-card {
+    background: rgba(10,16,10,0.8);
+    border-color: rgba(102,187,106,0.12);
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #43a047, #b5ff4d);
+    transform: scaleX(0);
+    transition: transform 0.22s;
+    transform-origin: left;
+    border-radius: 20px 20px 0 0;
+  }
+  .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(46,125,50,0.12); }
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .feature-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1b5e20;
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+  }
+  body.dark .feature-title { color: #a5d6a7; }
+  .feature-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #7a9a7a;
+    line-height: 1.6;
+  }
+
+  /* ── Cities ── */
+  .cities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .city-card-home {
+    background: #fff;
+    border: 1px solid rgba(67,160,71,0.15);
+    border-radius: 18px;
+    padding: 20px 16px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.22s;
+    display: block;
+  }
+  body.dark .city-card-home {
+    background: rgba(10,16,10,0.8);
+    border-color: rgba(102,187,106,0.12);
+  }
+  .city-card-home:hover {
+    transform: translateY(-3px);
+    border-color: #43a047;
+    box-shadow: 0 8px 20px rgba(46,125,50,0.12);
+  }
+  .city-emoji-home { font-size: 28px; display: block; margin-bottom: 8px; }
+  .city-name-home {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2e7d32;
+  }
+  body.dark .city-name-home { color: #81c784; }
+
+  /* ── Testimonials ── */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .testimonial-card {
+    background: #fff;
+    border: 1px solid rgba(67,160,71,0.15);
+    border-radius: 20px;
+    padding: 24px;
+    transition: box-shadow 0.22s;
+  }
+  body.dark .testimonial-card {
+    background: rgba(10,16,10,0.8);
+    border-color: rgba(102,187,106,0.12);
+  }
+  .testimonial-card:hover { box-shadow: 0 6px 20px rgba(46,125,50,0.1); }
+  .testimonial-quote {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #3a5c3a;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  body.dark .testimonial-quote { color: #9dc89d; }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #43a047, #2e7d32);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .t-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1b5e20;
+  }
+  body.dark .t-name { color: #a5d6a7; }
+  .t-city {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #7a9a7a;
+  }
+
+  /* ── CTA banner ── */
+  .cta-banner {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    margin: 0 32px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-banner::before {
+    content: '⌂';
+    position: absolute;
+    font-size: 200px;
+    color: rgba(255,255,255,0.04);
+    top: -40px; right: -20px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .cta-banner h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+  .cta-banner p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .btn-cta-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 32px;
+    border-radius: 50px;
+    background: #fff;
+    color: #1b5e20;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.22s;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-cta-white:hover {
+    background: #b5ff4d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+
+  /* ── Home footer ── */
+  .home-footer {
+    border-top: 1px solid rgba(67,160,71,0.1);
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2e7d32;
+    text-decoration: none;
+  }
+  body.dark .footer-logo { color: #66bb6a; }
+  .footer-copy {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #7a9a7a;
+  }
+  .footer-nav {
+    display: flex;
+    gap: 20px;
+  }
+  .footer-nav a {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #7a9a7a;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-nav a:hover { color: #2e7d32; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.5s ease both; }
+  .fade-up-1 { animation: fadeUp 0.5s 0.08s ease both; }
+  .fade-up-2 { animation: fadeUp 0.5s 0.16s ease both; }
+  .fade-up-3 { animation: fadeUp 0.5s 0.24s ease both; }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .steps-grid    { grid-template-columns: repeat(2, 1fr); }
+    .features-grid { grid-template-columns: 1fr; }
+    .cities-grid   { grid-template-columns: repeat(2, 1fr); }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .home-section  { padding: 48px 20px; }
+    .cta-banner    { margin: 0 20px 48px; padding: 36px 24px; }
+    .stats-bar     { flex-wrap: wrap; }
+    .stat-item     { min-width: 33%; }
+    .step-connector { display: none; }
+  }
+</style>
+
+<!-- ── Hero ── -->
+<div class="home-hero">
+  <div class="hero-badge">AI-powered property prices</div>
+  <h1>Know the <span class="accent">real value</span><br/>of any property</h1>
+  <p>Enter a city, pick a neighbourhood, and get an instant ML-powered price estimate — or browse listings within your budget.</p>
+  <div class="hero-cta">
+    {% if session.user_id %}
+      <a href="{{ url_for('select_city') }}" class="btn-hero btn-hero-primary">Go to app →</a>
+    {% else %}
+      <a href="{{ url_for('register') }}" class="btn-hero btn-hero-primary">Get started free →</a>
+      <a href="{{ url_for('login') }}" class="btn-hero btn-hero-secondary">Sign in</a>
+    {% endif %}
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-val">6</span>
+      <span class="stat-lbl">Cities covered</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">10k+</span>
+      <span class="stat-lbl">Properties analysed</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">±8%</span>
+      <span class="stat-lbl">Avg. accuracy</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── How it works ── -->
+<div class="home-section">
+  <div class="section-eyebrow">How it works</div>
+  <div class="section-heading">Four steps to your estimate</div>
+  <div class="section-sub">No broker. No calls. Just instant, data-backed property prices.</div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <div class="step-title">Pick a city</div>
+      <div class="step-desc">Choose from 6 major Indian cities including Bangalore, Mumbai, and Delhi.</div>
+      <span class="step-connector">→</span>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <div class="step-title">Select area</div>
+      <div class="step-desc">Narrow down to your preferred neighbourhood or locality.</div>
+      <span class="step-connector">→</span>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <div class="step-title">Get estimate</div>
+      <div class="step-desc">Our ML model predicts the price instantly based on real data.</div>
+      <span class="step-connector">→</span>
+    </div>
+    <div class="step-card">
+      <div class="step-number">4</div>
+      <div class="step-title">Book it</div>
+      <div class="step-desc">Proceed to payment when you're ready — UPI, card, EMI available.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Features ── -->
+<div class="home-section" style="background: rgba(67,160,71,0.03);">
+  <div class="section-eyebrow">What you can do</div>
+  <div class="section-heading">Everything you need</div>
+  <div class="section-sub">Two powerful tools under one roof.</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">🧮</span>
+      <div class="feature-title">Price prediction</div>
+      <div class="feature-desc">Enter property specs — area, bedrooms, amenities — and get an ML-powered estimate with a ± confidence range. No guesswork.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔍</span>
+      <div class="feature-title">Budget filter</div>
+      <div class="feature-desc">Enter your budget and instantly see matching listings in your chosen area. Adjust the margin and results update automatically.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏙️</span>
+      <div class="feature-title">6 major cities</div>
+      <div class="feature-desc">Bangalore, Mumbai, Delhi, Hyderabad, Chennai and Kolkata — with hundreds of localities in each city.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💳</span>
+      <div class="feature-title">Easy booking</div>
+      <div class="feature-desc">Found the right property? Book it in seconds with UPI, net banking, credit/debit card, or EMI — no redirects.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Cities ── -->
+<div class="home-section">
+  <div class="section-eyebrow">Coverage</div>
+  <div class="section-heading">Cities we cover</div>
+  <div class="section-sub">Click any city to start predicting.</div>
+  <div class="cities-grid">
+    {% set cities_info = [
+      ('Bangalore', '🌿'), ('Mumbai', '🌊'), ('Delhi', '🏛️'),
+      ('Hyderabad', '💎'), ('Chennai', '☀️'), ('Kolkata', '🌸')
+    ] %}
+    {% for city_name, emoji in cities_info %}
+    <a href="{{ url_for('select_city') if session.user_id else url_for('login') }}" class="city-card-home">
+      <span class="city-emoji-home">{{ emoji }}</span>
+      <span class="city-name-home">{{ city_name }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ── Testimonials ── -->
+<div class="home-section" style="background: rgba(67,160,71,0.03);">
+  <div class="section-eyebrow">User stories</div>
+  <div class="section-heading">What people are saying</div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-quote">"Got an estimate in under 30 seconds. The predicted price was very close to what the agent quoted us — saved us hours of research."</div>
+      <div class="testimonial-author">
+        <div class="t-avatar">AR</div>
+        <div>
+          <div class="t-name">Arjun R.</div>
+          <div class="t-city">Bangalore</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-quote">"The budget filter helped me shortlist 3 flats in Powai without calling a single broker. Incredibly useful tool."</div>
+      <div class="testimonial-author">
+        <div class="t-avatar">PM</div>
+        <div>
+          <div class="t-name">Priya M.</div>
+          <div class="t-city">Mumbai</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-quote">"I was skeptical about an ML predictor but the estimate for our Gurgaon flat was spot on. Highly recommend."</div>
+      <div class="testimonial-author">
+        <div class="t-avatar">SK</div>
+        <div>
+          <div class="t-name">Siddharth K.</div>
+          <div class="t-city">Delhi</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-quote">"Finally a property tool that doesn't ask for my phone number before showing anything. Clean, fast, accurate."</div>
+      <div class="testimonial-author">
+        <div class="t-avatar">NR</div>
+        <div>
+          <div class="t-name">Nandini R.</div>
+          <div class="t-city">Hyderabad</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CTA Banner ── -->
+<div class="cta-banner">
+  <h2>Ready to find your property's value?</h2>
+  <p>Join thousands of users getting instant, accurate price estimates across India's top cities.</p>
+  {% if session.user_id %}
+    <a href="{{ url_for('select_city') }}" class="btn-cta-white">Go to app →</a>
+  {% else %}
+    <a href="{{ url_for('register') }}" class="btn-cta-white">Create free account →</a>
+  {% endif %}
+</div>
+
+<!-- ── Footer ── -->
+<div class="home-footer">
+  <a href="/" class="footer-logo">VaLuNest</a>
+  <div class="footer-copy">© 2025 VaLuNest. All rights reserved.</div>
+  <nav class="footer-nav">
+    {% if session.user_id %}
+      <a href="{{ url_for('select_city') }}">Go to app</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">Sign in</a>
+      <a href="{{ url_for('register') }}">Register</a>
+    {% endif %}
+  </nav>
+</div>
+
+{% endblock %}

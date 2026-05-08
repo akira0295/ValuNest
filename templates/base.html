@@ -15,7 +15,7 @@
   <span class="logo-text">Valu<span class="logo-accent">Nest</span></span>
 </a>
   <div class="topbar-right">
-    <span class="topbar-user">👤 {{ session.user_name }}</span>
+    <a href="{{ url_for('profile') }}" class="topbar-user" style="text-decoration:none;cursor:pointer;">👤 {{ session.user_name }}</a>
     <button class="dark-toggle" onclick="toggleDark()">🌙</button>
     <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
   </div>
