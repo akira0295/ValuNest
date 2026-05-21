@@ -18,11 +18,25 @@
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" name="password" placeholder="Create a password" required>
+      <div style="position:relative;">
+        <input type="password" name="password" id="regPw"
+               placeholder="Create a password" required style="padding-right:44px;">
+        <button type="button" onclick="togglePw('regPw', this)"
+                style="position:absolute;right:14px;top:50%;transform:translateY(-50%);
+                       background:none;border:none;cursor:pointer;font-size:16px;
+                       color:var(--text-3);padding:0;line-height:1;">👁</button>
+      </div>
     </div>
     <div class="form-group">
       <label>Confirm password</label>
-      <input type="password" name="confirm" placeholder="Repeat password" required>
+      <div style="position:relative;">
+        <input type="password" name="confirm" id="regPwConfirm"
+               placeholder="Repeat password" required style="padding-right:44px;">
+        <button type="button" onclick="togglePw('regPwConfirm', this)"
+                style="position:absolute;right:14px;top:50%;transform:translateY(-50%);
+                       background:none;border:none;cursor:pointer;font-size:16px;
+                       color:var(--text-3);padding:0;line-height:1;">👁</button>
+      </div>
     </div>
     <button type="submit" class="btn btn-full" style="margin-top:8px;">Create account →</button>
   </form>
@@ -33,4 +47,14 @@
     <a href="{{ url_for('login') }}" class="btn btn-secondary" style="padding:10px 28px;">← Back to login</a>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+</script>
 {% endblock %}
